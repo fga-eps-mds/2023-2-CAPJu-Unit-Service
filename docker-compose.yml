@@ -1,4 +1,4 @@
-version: "3.3"
+version: '3.3'
 
 services:
   unit:
@@ -6,15 +6,11 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: unit
-    command:
-      [
-        "npm",
-        "run",
-        "start",
-      ]
+    command: ['/bin/sh', '-c', 'npm start']
     restart: always
     volumes:
       - ./:/app
+      - /app/node_modules
     ports:
       - 8085:8085
     networks:
