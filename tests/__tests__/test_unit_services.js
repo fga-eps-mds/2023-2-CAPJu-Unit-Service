@@ -87,8 +87,79 @@ describe('UnitServices', () => {
     }); 
   });
 
-  describe('countRows', () => {
-    it('Retornar a quantidade de unidades', async () => {
+  describe('Update', () => {
+    it('Atualizar uma unidade - Sucesso', async () => {
+        const response = [
+            {
+              idUnit: 1,
+              name: 'FGA',
+            },
+          ];
+        const response2 = [
+            {
+              idUnit: 1,
+              name: 'FGA',
+            },
+        ];
+      const idUnit = 1;
+      const name = "FGA 2";
+
+      UnitModelMock.findOne.mockResolvedValue(response);
+      UnitModelMock.update.mockResolvedValue([1]);
+
+      const result = await unitService.updateUnit(idUnit, name);
+
+      expect(result).toEqual(true);
+      expect(UnitModelMock.update).toHaveBeenCalledWith(
+        { name: name },
+        { where: { idUnit: idUnit } },
+      );
+    }); 
+
+    it('Atualizar uma unidade - Sucesso', async () => {
+        const response = [
+            {
+              idUnit: 1,
+              name: 'FGA',
+            },
+          ];
+        const response2 = [
+            {
+              idUnit: 1,
+              name: 'FGA',
+            },
+        ];
+      const idUnit = 1;
+      const name = "FGA 2";
+
+      UnitModelMock.findOne.mockResolvedValue(response);
+      UnitModelMock.update.mockResolvedValue([0]);
+
+      const result = await unitService.updateUnit(idUnit, name);
+
+      expect(result).toEqual(false);
+      expect(UnitModelMock.update).toHaveBeenCalledWith(
+        { name: name },
+        { where: { idUnit: idUnit } },
+      );
+    }); 
+
+    it('Atualizar uma unidade - Falha', async () => {
+        const response = undefined;
+
+      UnitModelMock.findOne.mockResolvedValue(response);
+      const idUnit = 1;
+      const name = "FGA 2";
+
+      const result = await unitService.updateUnit(idUnit, name);
+
+      expect(result).toEqual(false);
+
+    }); 
+  });
+
+  describe('deleteUnit', () => {
+    it('Deletar uma unidade - Sucesso', async () => {
         const response = [
             {
               idUnit: 1,
@@ -98,11 +169,44 @@ describe('UnitServices', () => {
       const idUnit = 1;
 
       UnitModelMock.findOne.mockResolvedValue(response);
+      UnitModelMock.destroy.mockResolvedValue([1]);
 
-      const result = await unitService.getUnitById(idUnit);
+      const result = await unitService.deleteUnit(idUnit);
 
-      expect(result).toEqual(response);
-      expect(UnitModelMock.findOne).toHaveBeenCalledWith({ where: { idUnit: idUnit }});
-    }); 
+      expect(result).toEqual(true);
+      expect(UnitModelMock.destroy).toHaveBeenCalledWith(
+        { where: { idUnit: idUnit } },
+      );
+    });
+
+    it('Deletar uma unidade - Sucesso', async () => {
+        const response = [
+            {
+              idUnit: 1,
+              name: 'FGA',
+            },
+          ];
+      const idUnit = 1;
+
+      UnitModelMock.findOne.mockResolvedValue(response);
+      UnitModelMock.destroy.mockResolvedValue([0]);
+
+      const result = await unitService.deleteUnit(idUnit);
+
+      expect(result).toEqual(false);
+      expect(UnitModelMock.destroy).toHaveBeenCalledWith(
+        { where: { idUnit: idUnit } },
+      );
+    });
+
+    it('Deletar uma unidade - Sucesso', async () => {
+        const response = undefined;
+      const idUnit = 1;
+
+      UnitModelMock.findOne.mockResolvedValue(response);
+      const result = await unitService.deleteUnit([1, 2]);
+
+      expect(result).toEqual(false);
+    });
   });
 });
