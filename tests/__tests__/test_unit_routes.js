@@ -418,4 +418,19 @@ describe('unit endpoints', () => {
     });
     expect(resMock.status).toHaveBeenCalledWith(500);
   });
+
+  test('index - list all units with filter (200)', async () => {
+    services.unitService.getAllUnits = jest.fn().mockResolvedValue([]);
+    services.unitService.countRows = jest.fn().mockResolvedValue(0);
+
+    reqMock.query = {
+      limit: 5,
+      offset: 5,
+      filter: 'FGA',
+    };
+    await controllers.unitController.index(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(200);
+    expect(resMock.json).toHaveBeenCalledWith({ units: [], totalPages: 0 });
+  });
 });
