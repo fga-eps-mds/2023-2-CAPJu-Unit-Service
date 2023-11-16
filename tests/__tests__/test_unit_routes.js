@@ -159,6 +159,7 @@ describe('unit endpoints', () => {
     });
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
+  
 
   test('delete - unit does not exist (204)', async () => {
     services.unitService.getAllUnits = jest.fn().mockResolvedValue([]);
