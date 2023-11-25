@@ -16,18 +16,43 @@ describe('unit endpoints', () => {
   });
 
   test('index - list all units (200)', async () => {
-    services.unitService.getAllUnits = jest.fn().mockResolvedValue([]);
+    services.unitService.getAllUnits = jest.fn().mockResolvedValue(undefined);
     services.unitService.countRows = jest.fn().mockResolvedValue(0);
 
     reqMock.query = {
-      limit: 1,
-      offset: 0,
+      limit: 5,
+      offset: 5,
       filter: 0,
     };
     await controllers.unitController.index(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith({ units: [], totalPages: 0 });
     expect(resMock.status).toHaveBeenCalledWith(200);
+    expect(resMock.json).toHaveBeenCalledWith({ units: [], totalPages: 0 });
+  });
+
+  test('index - list all units (200)', async () => {
+    const response = [
+      {
+        idUnit: 1,
+        name: 'FGA',
+      },
+    ];
+
+    services.unitService.getAllUnits = jest.fn().mockResolvedValue(response);
+    services.unitService.countRows = jest.fn().mockResolvedValue(1);
+
+    reqMock.query = {
+      limit: 5,
+      offset: 5,
+      filter: 0,
+    };
+    await controllers.unitController.index(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(200);
+    expect(resMock.json).toHaveBeenCalledWith({
+      units: response,
+      totalPages: 1,
+    });
   });
 
   test('index - failed to list (500)', async () => {
@@ -134,6 +159,7 @@ describe('unit endpoints', () => {
     });
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
+  
 
   test('delete - unit does not exist (204)', async () => {
     services.unitService.getAllUnits = jest.fn().mockResolvedValue([]);
@@ -391,5 +417,20 @@ describe('unit endpoints', () => {
       error: 'Erro ao remover usuário como administrador',
     });
     expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
+  test('index - list all units with filter (200)', async () => {
+    services.unitService.getAllUnits = jest.fn().mockResolvedValue([]);
+    services.unitService.countRows = jest.fn().mockResolvedValue(0);
+
+    reqMock.query = {
+      limit: 5,
+      offset: 5,
+      filter: 'FGA',
+    };
+    await controllers.unitController.index(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(200);
+    expect(resMock.json).toHaveBeenCalledWith({ units: [], totalPages: 0 });
   });
 });
