@@ -15,7 +15,7 @@ jobs:
 
       - name: Copy repository
         uses: actions/checkout@v2
-        
+
       - run: wget $METRICS_URL -O ${{ steps.name.outputs.file_name }}.json
         env:
           METRICS_URL: ${{ secrets.METRICS_URL }}

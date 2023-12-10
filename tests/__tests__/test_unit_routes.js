@@ -55,6 +55,33 @@ describe('unit endpoints', () => {
     });
   });
 
+  test('index - list all units (200)', async () => {
+    const response = [
+      {
+        idUnit: 1,
+        name: 'FGA',
+      },
+    ];
+
+    services.unitService.getAllUnits = jest.fn().mockResolvedValue(response);
+    services.unitService.countRows = jest.fn().mockResolvedValue(1);
+
+    reqMock.query = {
+      limit: 5,
+      offset: 5,
+      filter: {
+        type: 'unit',
+      },
+    };
+    await controllers.unitController.index(reqMock, resMock);
+
+    expect(resMock.status).toHaveBeenCalledWith(200);
+    expect(resMock.json).toHaveBeenCalledWith({
+      units: response,
+      totalPages: 1,
+    });
+  });
+
   test('index - failed to list (500)', async () => {
     const error = new Error('Internal Error');
     services.unitService.getAllUnits = jest.fn().mockRejectedValue(error);
@@ -159,7 +186,6 @@ describe('unit endpoints', () => {
     });
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
-  
 
   test('delete - unit does not exist (204)', async () => {
     services.unitService.getAllUnits = jest.fn().mockResolvedValue([]);
