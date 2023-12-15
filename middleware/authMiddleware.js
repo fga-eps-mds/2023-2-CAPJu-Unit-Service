@@ -7,16 +7,18 @@ import routesPermissions from '../src/routes/routesPermissions.js';
 import services from '../src/services/_index.js';
 
 const publicEndpoints = [
-  { pattern: /^\/\?.*/, method: 'GET' } // Route '/' is public
+  { pattern: /^\/\?.*/, method: 'GET' }, // Route '/' is public
 ];
 
 async function authenticate(req, res, next) {
-
-  const isPublicEndpoint = publicEndpoints.some(endpoint => endpoint.pattern.test(req.originalUrl) && endpoint.method === req.method);
+  const isPublicEndpoint = publicEndpoints.some(
+    endpoint =>
+      endpoint.pattern.test(req.originalUrl) && endpoint.method === req.method,
+  );
   let isAccepted = true;
   let message = null;
 
-  if(isPublicEndpoint) {
+  if (isPublicEndpoint) {
     await registerEndpointLogEvent({ req, isAccepted, message });
     next();
     return;
@@ -32,22 +34,32 @@ async function authenticate(req, res, next) {
       const token = authorizationHeader.split(' ')[1];
       const decodedUser = jwt.verify(token, process.env.JWT_SECRET).id;
 
-      const userData = await services.userService.findUserWithRole(decodedUser.cpf);
+      const userData = await services.userService.findUserWithRole(
+        decodedUser.cpf,
+      );
 
       if (!userData || userData.accepted === false) {
         throw new Error('');
       }
 
-      const hasActiveSession = await services.userAccessLogService.hasActiveSessionRelatedToJWT(token);
+      const hasActiveSession =
+        await services.userAccessLogService.hasActiveSessionRelatedToJWT(token);
       if (!hasActiveSession) {
         throw new Error('Token não associado a uma sessão ativa.');
       }
 
-      ({ isAccepted, message } = checkPermissions({ req, isAccepted, message, userData }));
-
+      ({ isAccepted, message } = checkPermissions({
+        req,
+        isAccepted,
+        message,
+        userData,
+      }));
     } catch (error) {
       isAccepted = false;
-      message = error.name === 'TokenExpiredError' ? 'O token expirou!' : (error.message || 'Autenticação falhou!');
+      message =
+        error.name === 'TokenExpiredError'
+          ? 'O token expirou!'
+          : error.message || 'Autenticação falhou!';
     }
   }
 
@@ -65,10 +77,11 @@ function getRequiredPermissions(req) {
   let matchingPermissions = null;
   let wasFound = false;
   for (let parentRoute of routesPermissions) {
-    if(wasFound)
-      break;
+    if (wasFound) break;
     for (const childRoute of parentRoute.childRoutes) {
-      const fullPath = parentRoute.parentPath + (childRoute.path === '' ? '' : childRoute.path);
+      const fullPath =
+        parentRoute.parentPath +
+        (childRoute.path === '' ? '' : childRoute.path);
       const regexPath = fullPath.replace(/\/:[^\/]+/g, '/[^/]+');
       const regex = new RegExp(`^${regexPath}$`);
       if (regex.test(requestPath) && childRoute?.method === req.method) {
@@ -113,9 +126,13 @@ async function tokenToUser(req, res) {
 
 function checkPermissions({ req, isAccepted, message, userData }) {
   let requiredPermissions = getRequiredPermissions(req);
-  if(requiredPermissions) {
-    requiredPermissions = Array.isArray(requiredPermissions) ? requiredPermissions : [requiredPermissions];
-    if (!requiredPermissions.every(p => userData.role.allowedActions.includes(p))) {
+  if (requiredPermissions) {
+    requiredPermissions = Array.isArray(requiredPermissions)
+      ? requiredPermissions
+      : [requiredPermissions];
+    if (
+      !requiredPermissions.every(p => userData.role.allowedActions.includes(p))
+    ) {
       isAccepted = false;
       message = 'Permissão negada!';
     }
@@ -141,7 +158,9 @@ async function registerEndpointLogEvent({ req, isAccepted, message }) {
   let userCPF;
   try {
     userCPF = (await userFromReq(req)).cpf;
-  } catch (e) { userCPF = null; }
+  } catch (e) {
+    userCPF = null;
+  }
   try {
     await UserEndpointAccessLogModel.create({
       endpoint: req.originalUrl,
