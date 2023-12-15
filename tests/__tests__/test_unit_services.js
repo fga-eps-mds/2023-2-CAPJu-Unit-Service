@@ -1,8 +1,4 @@
-import { UnitController } from '../../src/controllers/unit.js';
 import UnitService from '../../src/services/unit.js';
-import models from '../../src/models/_index.js';
-import unit from '../../src/models/unit.js';
-import controllers from '../../src/controllers/_index.js';
 import Op from 'sequelize';
 
 describe('UnitServices', () => {

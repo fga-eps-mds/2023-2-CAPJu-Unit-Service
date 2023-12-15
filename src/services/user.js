@@ -1,5 +1,4 @@
 import models from '../models/_index.js';
-
 export class UserService {
   constructor() {
     this.repository = models.User;
