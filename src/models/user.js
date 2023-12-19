@@ -36,10 +36,6 @@ class UserModel extends Model {
           foreignKey: true,
           allowNull: false,
         },
-        firstLogin: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-        },
       },
       {
         sequelize,
