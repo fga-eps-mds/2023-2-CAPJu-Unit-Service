@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 class UnitService {
   constructor(UnitModel) {
     this.unit = UnitModel;
@@ -16,6 +18,10 @@ class UnitService {
   }
 
   async createUnit(name) {
+    const currentUnit = await this.findOne({name: name?.trim()})
+    if(currentUnit){
+      throw {status: 409, message: "Nome da unidade já existe. Por favor, escolha um nome diferente"}
+    }
     return this.unit.create({ name });
   }
 
@@ -26,6 +32,10 @@ class UnitService {
   }
 
   async updateUnit(idUnit, name) {
+    const currentUnit = await this.findOne({ name: name?.trim(), idUnit: { [Op.ne]: idUnit } } )
+    if(currentUnit){
+      throw {status: 409, message: "Nome da unidade já existe. Por favor, escolha um nome diferente"}
+    }
     const unit = await this.getUnitById(idUnit);
     if (unit) {
       const [updatedRows] = await this.unit.update(
@@ -34,7 +44,7 @@ class UnitService {
       );
       if (updatedRows) return true;
     }
-    return false;
+    throw {status: 404, message: "Essa unidade não existe!"}
   }
 
   async deleteUnit(idUnit) {
@@ -45,6 +55,9 @@ class UnitService {
     }
     return false;
   }
-}
 
+  async findOne(where){
+    return await this.unit.findOne({where})
+  }
+}
 export default UnitService;
