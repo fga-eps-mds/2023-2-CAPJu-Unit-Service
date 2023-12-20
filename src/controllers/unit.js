@@ -33,27 +33,19 @@ export class UnitController {
       const unit = await this.unitService.createUnit(name);
       return res.status(200).json(unit);
     } catch (error) {
-      const status = error.status || 500
-      const message = error.message || "Erro ao criar unidade"
-      return res.status(status).json({
-        error: message,
-      });
+      return this.reactToError(error, res, 'Erro ao criar unidade');
     }
   };
 
   update = async (req, res) => {
     try {
       const { idUnit, name } = req.body;
-      const updated = await this.unitService.updateUnit(idUnit, name);
+      await this.unitService.updateUnit(idUnit, name);
       return res.status(200).json({
-        message: 'Unidade atualizado com sucesso',
+        message: 'Unidade atualizada com sucesso',
       });
     } catch (error) {
-      const status = error.status || 500
-      const message = error.message || "Erro ao atualizar unidade"
-      return res.status(status).json({
-        error: message,
-      });
+      return this.reactToError(error, res, 'Erro ao atualizar unidade');
     }
   };
 
@@ -162,5 +154,13 @@ export class UnitController {
         error: 'Erro ao remover usuário como administrador',
       });
     }
+  };
+
+  reactToError = (error, res, defaultMessage = 'ERRO') => {
+    const status = error.status || 500;
+    const message = error.message || defaultMessage;
+    return res.status(status).json({
+      error: message,
+    });
   };
 }
