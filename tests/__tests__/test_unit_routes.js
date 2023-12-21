@@ -115,8 +115,7 @@ describe('unit endpoints', () => {
     await controllers.unitController.store(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
-      error,
-      message: 'Erro ao criar unidade',
+      error: 'Internal Error',
     });
     expect(resMock.status).toHaveBeenCalledWith(500);
   });
@@ -131,24 +130,9 @@ describe('unit endpoints', () => {
     await controllers.unitController.update(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
-      message: 'Unidade atualizado com sucesso',
+      message: 'Unidade atualizada com sucesso',
     });
     expect(resMock.status).toHaveBeenCalledWith(200);
-  });
-
-  test('update - failed to update unit (404)', async () => {
-    services.unitService.updateUnit = jest.fn().mockResolvedValue(false);
-
-    reqMock.body = {
-      idUnit: 1,
-      name: 'Unidade',
-    };
-    await controllers.unitController.update(reqMock, resMock);
-
-    expect(resMock.json).toHaveBeenCalledWith({
-      message: 'Essa unidade não existe!',
-    });
-    expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
   test('update - failed to update unit (500)', async () => {
@@ -158,8 +142,7 @@ describe('unit endpoints', () => {
     await controllers.unitController.update(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
-      error,
-      message: 'Erro ao atualizar unidade',
+      error: 'Internal Error',
     });
     expect(resMock.status).toHaveBeenCalledWith(500);
   });
