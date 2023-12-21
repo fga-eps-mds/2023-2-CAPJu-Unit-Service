@@ -16,7 +16,10 @@ describe('unit endpoints', () => {
   });
 
   test('reactToError', async () => {
-    await controllers.unitController.reactToError({message: 'Error'}, resMock);
+    await controllers.unitController.reactToError(
+      { message: 'Error' },
+      resMock,
+    );
     expect(resMock.status).toHaveBeenCalledWith(500);
     expect(resMock.json).toHaveBeenCalledWith({
       error: 'Error',
@@ -99,7 +102,7 @@ describe('unit endpoints', () => {
   });
 
   test('index - failed to list (500)', async () => {
-    const error = {message: 'Internal Error'};
+    const error = { message: 'Internal Error' };
     services.unitService.getAllUnits = jest.fn().mockRejectedValue(error);
     await controllers.unitController.index(reqMock, resMock);
     expect(resMock.json).toHaveBeenCalledWith({

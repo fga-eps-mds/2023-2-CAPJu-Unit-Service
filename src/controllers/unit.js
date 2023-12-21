@@ -156,7 +156,7 @@ export class UnitController {
     }
   };
 
-  reactToError = (error, res, defaultMessage = "ERROR") => {
+  reactToError = (error, res, defaultMessage = 'ERROR') => {
     const status = error.status || 500;
     const message = error.message || defaultMessage;
     return res.status(status).json({
