@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 class UnitService {
   constructor(UnitModel) {
     this.unit = UnitModel;
@@ -16,6 +18,7 @@ class UnitService {
   }
 
   async createUnit(name) {
+    await this.validateUnitNameAvailability(name);
     return this.unit.create({ name });
   }
 
@@ -27,14 +30,16 @@ class UnitService {
 
   async updateUnit(idUnit, name) {
     const unit = await this.getUnitById(idUnit);
-    if (unit) {
-      const [updatedRows] = await this.unit.update(
-        { name: name },
-        { where: { idUnit: idUnit } },
-      );
-      if (updatedRows) return true;
+    if (!unit) {
+      throw { status: 404, message: 'Essa unidade não existe!' };
     }
-    return false;
+    await this.validateUnitNameAvailability(name, idUnit);
+
+    const [updatedRows] = await this.unit.update(
+      { name },
+      { where: { idUnit } },
+    );
+    return updatedRows;
   }
 
   async deleteUnit(idUnit) {
@@ -45,6 +50,24 @@ class UnitService {
     }
     return false;
   }
-}
 
+  async findOne(where) {
+    return await this.unit.findOne({ where });
+  }
+
+  async validateUnitNameAvailability(name, excludeIdUnit = null) {
+    const filter = {
+      name: name?.trim(),
+      ...(excludeIdUnit && { idUnit: { [Op.ne]: excludeIdUnit } }),
+    };
+    const existingUnit = await this.findOne(filter);
+    if (existingUnit) {
+      throw {
+        status: 409,
+        message:
+          'Nome da unidade já existe. Por favor, escolha um nome diferente',
+      };
+    }
+  }
+}
 export default UnitService;

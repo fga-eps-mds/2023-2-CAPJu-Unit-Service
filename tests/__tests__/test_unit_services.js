@@ -100,40 +100,15 @@ describe('UnitServices', () => {
       const idUnit = 1;
       const name = 'FGA 2';
 
-      UnitModelMock.findOne.mockResolvedValue(response);
+      unitService.getUnitById = jest.fn().mockResolvedValue(response);
+      unitService.validateUnitNameAvailability = jest
+        .fn()
+        .mockResolvedValue(null);
       UnitModelMock.update.mockResolvedValue([1]);
 
       const result = await unitService.updateUnit(idUnit, name);
 
-      expect(result).toEqual(true);
-      expect(UnitModelMock.update).toHaveBeenCalledWith(
-        { name: name },
-        { where: { idUnit: idUnit } },
-      );
-    });
-
-    it('Atualizar uma unidade - Sucesso', async () => {
-      const response = [
-        {
-          idUnit: 1,
-          name: 'FGA',
-        },
-      ];
-      const response2 = [
-        {
-          idUnit: 1,
-          name: 'FGA',
-        },
-      ];
-      const idUnit = 1;
-      const name = 'FGA 2';
-
-      UnitModelMock.findOne.mockResolvedValue(response);
-      UnitModelMock.update.mockResolvedValue([0]);
-
-      const result = await unitService.updateUnit(idUnit, name);
-
-      expect(result).toEqual(false);
+      expect(result).toEqual(1);
       expect(UnitModelMock.update).toHaveBeenCalledWith(
         { name: name },
         { where: { idUnit: idUnit } },
@@ -144,12 +119,32 @@ describe('UnitServices', () => {
       const response = undefined;
 
       UnitModelMock.findOne.mockResolvedValue(response);
+      unitService.validateUnitNameAvailability = jest
+        .fn()
+        .mockResolvedValue(null);
       const idUnit = 1;
       const name = 'FGA 2';
 
-      const result = await unitService.updateUnit(idUnit, name);
+      await expect(unitService.updateUnit(idUnit, name)).rejects.toEqual({
+        status: 404,
+        message: 'Essa unidade não existe!',
+      });
+    });
 
-      expect(result).toEqual(false);
+    it('Atualizar uma unidade - Falha 409', async () => {
+      const response = {
+        idUnit: 1,
+        name: 'FGA',
+      };
+      UnitModelMock.findOne.mockResolvedValue(response);
+
+      await expect(
+        unitService.validateUnitNameAvailability('FGA', 1),
+      ).rejects.toEqual({
+        status: 409,
+        message:
+          'Nome da unidade já existe. Por favor, escolha um nome diferente',
+      });
     });
   });
 
