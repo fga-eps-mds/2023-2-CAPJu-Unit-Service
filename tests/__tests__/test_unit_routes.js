@@ -15,6 +15,22 @@ describe('unit endpoints', () => {
     jest.clearAllMocks();
   });
 
+  test('reactToError', async () => {
+    await controllers.unitController.reactToError({message: 'Error'}, resMock);
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: 'Error',
+    });
+  });
+
+  test('reactToError', async () => {
+    await controllers.unitController.reactToError({}, resMock);
+    expect(resMock.status).toHaveBeenCalledWith(500);
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: 'ERROR',
+    });
+  });
+
   test('index - list all units (200)', async () => {
     services.unitService.getAllUnits = jest.fn().mockResolvedValue(undefined);
     services.unitService.countRows = jest.fn().mockResolvedValue(0);
@@ -83,7 +99,7 @@ describe('unit endpoints', () => {
   });
 
   test('index - failed to list (500)', async () => {
-    const error = new Error('Internal Error');
+    const error = {message: 'Internal Error'};
     services.unitService.getAllUnits = jest.fn().mockRejectedValue(error);
     await controllers.unitController.index(reqMock, resMock);
     expect(resMock.json).toHaveBeenCalledWith({

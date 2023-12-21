@@ -125,6 +125,22 @@ describe('UnitServices', () => {
       .rejects.toEqual({ status: 404, message: 'Essa unidade não existe!' });
 
     });
+
+    it('Atualizar uma unidade - Falha 409', async () => {
+      const response = {
+          idUnit: 1,
+          name: 'FGA',
+        };
+      UnitModelMock.findOne.mockResolvedValue(response);
+
+      await expect(unitService.validateUnitNameAvailability('FGA', 1))
+      .rejects.toEqual({
+        status: 409,
+        message:
+          'Nome da unidade já existe. Por favor, escolha um nome diferente',
+      });
+
+    });
   });
 
   describe('deleteUnit', () => {
